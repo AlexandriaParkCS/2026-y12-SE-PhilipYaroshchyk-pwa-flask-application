@@ -54,3 +54,8 @@ This Flask template has been built from the ground up to be a secure Progressive
 
 > [!TIP]
 > Developers should [monitor Bootstrap 5.3.3 for discovered vulnerabilities](https://security.snyk.io/package/npm/bootstrap) and patch or update as needed.
+
+## To RUN
+- ```cd src```
+- ```flask --app app --debug run```
+- navigate to http://127.0.0.1:5000/
