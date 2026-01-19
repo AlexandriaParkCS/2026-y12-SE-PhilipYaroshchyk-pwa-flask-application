@@ -4,8 +4,11 @@ from flask import Flask
 from flask import render_template
 from flask import request
 from flask import redirect
+from flask import session
+from flask import url_for
 from flask_wtf import CSRFProtect
 from flask_csp.csp import csp_header
+from user_service import UserService
 
 from sqldb import SqlDb
 # OR
@@ -19,7 +22,13 @@ logging.basicConfig(
     format=" %(asctime)s %(message)s",
 )
 
+
+
+
 sql_db = SqlDb("../runtime/db/sql.db")
+user_service = UserService(sql_db)
+
+
 # OR
 # orm_db = OrmDb("../runtime/db/orm.db")
 
@@ -59,21 +68,54 @@ def root():
     }
 )
 def index():
-    return render_template("/index.html")
+    if 'username' in session:
+        return render_template("/index.html")
+    else:
+        return render_template("/public.html")
 
 @app.route("/privacy.html", methods=["GET"])
 def privacy():
     return render_template("/privacy.html")
 
-@app.route("/form.html", methods=["POST", "GET"])
-def form():
-    if request.method == "POST":
-        email = request.form["email"]
-        text = request.form["text"]
-        print(f"<From(email={email}, text='{text}')>")
-        return render_template("/form.html")
+     
+@app.route("/signup.html", methods=["POST"])
+def signup():
+    email = request.form["email"]
+    username = request.form["username"]
+    password = request.form["password"]
+
+    log.info(f"creating new user {username}")
+
+    is_saved = user_service.signup(username, email, password)
+    
+    if is_saved:        
+        session['username'] = username
+        return render_template("/index.html")
     else:
-        return render_template("/form.html")
+        log.info(f"Failed to create user {username}")
+        return render_template("/public.html")
+        
+    
+
+@app.route('/login', methods=["POST"])    
+def login():
+    username = request.form["username"]
+    password = request.form["password"]
+    is_logged_in = user_service.login(username, password)
+    if is_logged_in:
+        session['username'] = username
+    else:
+        log.info(f"Failed to login user {username}")
+    return redirect("/")
+    
+
+
+@app.route("/logout")
+def logout():
+    log.info(f"logging out user {session['username']}")
+    session.pop('username', None)       
+    return redirect("/") 
+
 
 # Endpoint for logging CSP violations
 @app.route("/csp_report", methods=["POST"])

@@ -19,7 +19,8 @@ class SqlDb(object):
                 CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT UNIQUE NOT NULL,
-                email TEXT UNIQUE NOT NULL)
+                email TEXT UNIQUE NOT NULL,
+                password_hash TEXT NOT NULL)
             """)
             conn.commit()
         except sqlite3.Error as e:
@@ -30,20 +31,22 @@ class SqlDb(object):
             if conn: 
                 conn.close()
 
-    def create_user(self, username, email):
+    def create_user(self, username, email, hash):
         conn = None
         try:
             conn = self._connect()
             cursor = conn.cursor()
             cursor.execute(
-                "INSERT INTO users (username, email) VALUES (?, ?)",
-                (username, email)
+                "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
+                (username, email, hash)
             )
             conn.commit()
             user_id = cursor.lastrowid
             return {"id": user_id, "username": username, "email": email}
         except sqlite3.IntegrityError:
             print("Error: Username or email already exists.")
+            # return error
+            raise
         except sqlite3.Error as e:
             print(f"Database error during user creation: {e}")
         finally:
@@ -58,12 +61,15 @@ class SqlDb(object):
             conn = self._connect()
             cursor = conn.cursor()
             cursor.execute(
-                "SELECT id, username, email FROM users WHERE username = ?",
+                "SELECT id, username, email, password_hash FROM users WHERE username = ?",
                 (username,)
             )
             row = cursor.fetchone()
             if row:
-                return {"id": row[0], "username": row[1], "email": row[2]}
+                return {"id": row[0], "username": row[1], "email": row[2], "password_hash": row[3]}
+            else:
+                return None
+            
         except sqlite3.Error as e:
             print(f"Database error during user retrieval: {e}")
         finally:
