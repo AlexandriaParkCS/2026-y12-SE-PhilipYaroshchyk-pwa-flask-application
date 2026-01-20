@@ -101,19 +101,39 @@ def signup():
 def login():
     username = request.form["username"]
     password = request.form["password"]
-    is_logged_in = user_service.login(username, password)
-    if is_logged_in:
+    user = user_service.login(username, password)
+    if user != None:
         session['username'] = username
+        session['user_id'] = user['id']
     else:
         log.info(f"Failed to login user {username}")
     return redirect("/")
-    
+
+@app.route('/add_expense', methods=["POST"])    
+def add_expense():
+    amount = request.form["amount"]
+    expense_type = request.form["expense_type"]
+    description = request.form["description"]
+    user_id = session["user_id"]
+
+    print(f"submitted amount={amount} type={expense_type} {description}")
+    expense = user_service.add_expense(user_id, expense_type, amount, description)
+
+    if expense:
+        print("successfully added expense")
+    else:
+        print("failed to add expense")    
+
+
+    return redirect("/")
+
 
 
 @app.route("/logout")
 def logout():
     log.info(f"logging out user {session['username']}")
     session.pop('username', None)       
+    session.pop('user_id', None)
     return redirect("/") 
 
 

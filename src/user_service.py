@@ -29,13 +29,26 @@ class UserService:
             user = self.db.get_user_by_username(username)
             if user:
                 if user["password_hash"] == password_hash:
-                    return True
+                    return user
                 else:
                     print("password incorrect")
-                    return False
+                    return None
         except sqlite3.IntegrityError:
             print(f"database error, failed to login user {username}")        
-            return False
+            return None
+        
+
+    def add_expense(self, user_id, expense_type, amount, description):
+        try:
+            expense = self.db.create_expense(user_id, expense_type, amount, description)
+            if expense:
+                print(f"expense created {expense['id']}")
+            return expense 
+        except Exception as e:
+            print(f"failed to add expense {e}")
+            return None
+
+               
 
 
 

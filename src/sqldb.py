@@ -22,6 +22,19 @@ class SqlDb(object):
                 email TEXT UNIQUE NOT NULL,
                 password_hash TEXT NOT NULL)
             """)
+
+            cursor.execute(""" 
+                CREATE TABLE IF NOT EXISTS expenses (
+                id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                user_id INTEGER NOT NULL,
+                expense_type TEXT NOT NULL,
+                amount FLOAT NOT NULL,
+                description TEXT,
+                FOREIGN KEY (user_id) REFERENCES users(id)           
+                ) 
+            """)
+
+
             conn.commit()
         except sqlite3.Error as e:
             print(f"Error creating table: {e}")
@@ -121,6 +134,35 @@ class SqlDb(object):
                 cursor.close()
             if conn: 
                 conn.close()
+
+
+
+
+    def create_expense(self, user_id, expense_type, amount, description):
+        conn = None
+        try:
+            conn = self._connect()
+            cursor = conn.cursor()
+            cursor.execute(
+                "INSERT INTO expenses (user_id, expense_type, amount, description) VALUES (?, ?, ?, ?)",
+                (user_id, expense_type, amount, description)
+            )
+            conn.commit()
+            expense_id = cursor.lastrowid
+            return {"id": expense_id}
+        except sqlite3.IntegrityError:
+            print("Error: Failed to create expense.")
+            # return error
+            raise
+        except sqlite3.Error as e:
+            print(f"Database error during expense creation: {e}")
+            raise
+        finally:
+            if cursor: 
+                cursor.close()
+            if conn: 
+                conn.close()
+             
 
 # Example usage
 if __name__ == "__main__":
