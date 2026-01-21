@@ -29,6 +29,7 @@ class SqlDb(object):
                 user_id INTEGER NOT NULL,
                 expense_type TEXT NOT NULL,
                 amount FLOAT NOT NULL,
+                expense_date TEXT NOT NULL,
                 description TEXT,
                 FOREIGN KEY (user_id) REFERENCES users(id)           
                 ) 
@@ -138,14 +139,14 @@ class SqlDb(object):
 
 
 
-    def create_expense(self, user_id, expense_type, amount, description):
+    def create_expense(self, user_id, expense_type, amount, expense_date, description):
         conn = None
         try:
             conn = self._connect()
             cursor = conn.cursor()
             cursor.execute(
-                "INSERT INTO expenses (user_id, expense_type, amount, description) VALUES (?, ?, ?, ?)",
-                (user_id, expense_type, amount, description)
+                "INSERT INTO expenses (user_id, expense_type, amount, expense_date, description) VALUES (?, ?, ?, ?, ?)",
+                (user_id, expense_type, amount, expense_date, description)
             )
             conn.commit()
             expense_id = cursor.lastrowid
@@ -162,6 +163,34 @@ class SqlDb(object):
                 cursor.close()
             if conn: 
                 conn.close()
+
+    def get_all_user_expenses(self, user_id):
+        conn = None
+        try:
+            conn = self._connect()
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT id, user_id, expense_type, amount, expense_date, description FROM expenses WHERE user_id = ?",
+                (user_id,)
+            )
+            rows = cursor.fetchall()
+
+            if rows:
+                list = []
+                for row in rows:
+                    list.append({"id": row[0], "user_id": row[1], "expense_type": row[2], "amount": row[3], "expense_date": row[4], "description": row[5]})
+                return list    
+
+            else:
+                return None
+        except Exception as e:
+            print(f"Database error during expenses retrieval: {e}")
+        finally:
+            if cursor: 
+                cursor.close()
+            if conn: 
+                conn.close()
+
              
 
 # Example usage

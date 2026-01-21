@@ -86,10 +86,11 @@ def signup():
 
     log.info(f"creating new user {username}")
 
-    is_saved = user_service.signup(username, email, password)
+    user = user_service.signup(username, email, password)
     
-    if is_saved:        
+    if user:        
         session['username'] = username
+        session['user_id'] = user['id']
         return render_template("/index.html")
     else:
         log.info(f"Failed to create user {username}")
@@ -102,9 +103,14 @@ def login():
     username = request.form["username"]
     password = request.form["password"]
     user = user_service.login(username, password)
+
     if user != None:
         session['username'] = username
         session['user_id'] = user['id']
+
+        expenses = user_service.get_all_user_expenses(user['id'])
+
+
     else:
         log.info(f"Failed to login user {username}")
     return redirect("/")
@@ -114,10 +120,11 @@ def add_expense():
     amount = request.form["amount"]
     expense_type = request.form["expense_type"]
     description = request.form["description"]
+    date = request.form["date"]
     user_id = session["user_id"]
 
-    print(f"submitted amount={amount} type={expense_type} {description}")
-    expense = user_service.add_expense(user_id, expense_type, amount, description)
+    print(f"submitted amount={amount} type={expense_type} {description} {date}")
+    expense = user_service.add_expense(user_id, expense_type, amount, date, description)
 
     if expense:
         print("successfully added expense")

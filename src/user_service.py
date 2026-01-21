@@ -17,10 +17,9 @@ class UserService:
         print(f"signing up new user: {username}, {email}")
         try:
             password_hash = bcrypt.hashpw(password.encode('utf-8'), self.salt)
-            self.db.create_user(username, email, password_hash)
+            return self.db.create_user(username, email, password_hash)
         except sqlite3.IntegrityError:
-            return False
-        return True
+            return None
     
 
     def login(self, username, password):
@@ -38,16 +37,26 @@ class UserService:
             return None
         
 
-    def add_expense(self, user_id, expense_type, amount, description):
+    def add_expense(self, user_id, expense_type, amount, date, description):
         try:
-            expense = self.db.create_expense(user_id, expense_type, amount, description)
+            expense = self.db.create_expense(user_id, expense_type, amount, date, description)
             if expense:
                 print(f"expense created {expense['id']}")
             return expense 
         except Exception as e:
             print(f"failed to add expense {e}")
             return None
-
+        
+    def get_all_user_expenses(self, user_id):
+        try:
+            expenses = self.db.get_all_user_expenses(user_id)
+            if expenses:
+                print("expenses fetched OK")
+                print(expenses)
+                return expenses     
+        except Exception as e:
+            print(f"failed to add expense {e}")
+            return None
                
 
 

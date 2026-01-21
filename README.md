@@ -59,3 +59,4 @@ This Flask template has been built from the ground up to be a secure Progressive
 - ```cd src```
 - ```flask --app app --debug run```
 - navigate to http://127.0.0.1:5000/
+- to stop use ```control + c``` in the terminal
