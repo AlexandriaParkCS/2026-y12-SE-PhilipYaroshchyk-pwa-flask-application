@@ -24,12 +24,12 @@ class SqlDb(object):
             """)
 
             cursor.execute(""" 
-                CREATE TABLE IF NOT EXISTS expenses (
+                CREATE TABLE IF NOT EXISTS transactions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT, 
                 user_id INTEGER NOT NULL,
-                expense_type TEXT NOT NULL,
+                transaction_type TEXT NOT NULL,
                 amount FLOAT NOT NULL,
-                expense_date TEXT NOT NULL,
+                transaction_date TEXT NOT NULL,
                 description TEXT,
                 FOREIGN KEY (user_id) REFERENCES users(id)           
                 ) 
@@ -139,24 +139,24 @@ class SqlDb(object):
 
 
 
-    def create_expense(self, user_id, expense_type, amount, expense_date, description):
+    def create_transaction(self, user_id, transaction_type, amount, transaction_date, description):
         conn = None
         try:
             conn = self._connect()
             cursor = conn.cursor()
             cursor.execute(
-                "INSERT INTO expenses (user_id, expense_type, amount, expense_date, description) VALUES (?, ?, ?, ?, ?)",
-                (user_id, expense_type, amount, expense_date, description)
+                "INSERT INTO transactions (user_id, transaction_type, amount, transaction_date, description) VALUES (?, ?, ?, ?, ?)",
+                (user_id, transaction_type, amount, transaction_date, description)
             )
             conn.commit()
             expense_id = cursor.lastrowid
             return {"id": expense_id}
         except sqlite3.IntegrityError:
-            print("Error: Failed to create expense.")
+            print("Error: Failed to create transaction.")
             # return error
             raise
         except sqlite3.Error as e:
-            print(f"Database error during expense creation: {e}")
+            print(f"Database error during transaction creation: {e}")
             raise
         finally:
             if cursor: 
@@ -164,13 +164,13 @@ class SqlDb(object):
             if conn: 
                 conn.close()
 
-    def get_all_user_expenses(self, user_id):
+    def get_all_user_transactions(self, user_id):
         conn = None
         try:
             conn = self._connect()
             cursor = conn.cursor()
             cursor.execute(
-                "SELECT id, user_id, expense_type, amount, expense_date, description FROM expenses WHERE user_id = ?",
+                "SELECT id, user_id, transaction_type, amount, transaction_date, description FROM transactions WHERE user_id = ?",
                 (user_id,)
             )
             rows = cursor.fetchall()
@@ -178,13 +178,13 @@ class SqlDb(object):
             if rows:
                 list = []
                 for row in rows:
-                    list.append({"id": row[0], "user_id": row[1], "expense_type": row[2], "amount": row[3], "expense_date": row[4], "description": row[5]})
+                    list.append({"id": row[0], "user_id": row[1], "transaction_type": row[2], "amount": row[3], "transaction_date": row[4], "description": row[5]})
                 return list    
 
             else:
                 return None
         except Exception as e:
-            print(f"Database error during expenses retrieval: {e}")
+            print(f"Database error during transactions retrieval: {e}")
         finally:
             if cursor: 
                 cursor.close()

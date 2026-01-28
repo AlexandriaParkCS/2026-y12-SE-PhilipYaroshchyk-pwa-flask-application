@@ -1,8 +1,13 @@
-<div>
-    <h3>Add new expense</h3>
 
+{% extends 'layout.html' %}
+{% block content %}
 
-<form action="/add_expense" method="POST" class="box">
+ {% include "app_menu.html" %}
+
+<div class="container">
+  <div class="row">
+    <h3>Add New Expense</h3>
+    <form action="/add_expense" method="POST" class="box">
      <div class="col-auto">
         <label for="expense_type" class="form-label">Expense Type</label>
         <input name="expense_type" required type="text" class="form-control" pattern="^[a-z0-9._%+-]{2, 50}$" placeholder="Expense Type">
@@ -33,5 +38,9 @@
 
 
 </form>
+  </div>
+
 
 </div>
+
+{% endblock %}

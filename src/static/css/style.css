@@ -8,18 +8,16 @@ body {
 
 }
 
-.container {
-
-}
-
-.row {
-    
-}
 
 .display-1 {
     color: red;
 }
 
 .box {
-    width: fit-content
+    /* width: fit-content */
+}
+
+
+.navbar-custom {
+    background-color: rgb(107, 210, 175);
 }

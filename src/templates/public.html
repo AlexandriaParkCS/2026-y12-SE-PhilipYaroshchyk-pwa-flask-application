@@ -1,12 +1,37 @@
 {% extends 'layout.html' %}
 {% block content %}
 
-<div>
-     {%include "signup.html" %}
-</div>
 
-<div>
-    {%include "login.html" %}
-</div>
+<div class="container text-center mt-5" id="loginSignupGroup">
+
+    <h2>Welcome to BreakingBank</h2>
+
+    <p>You need to Login or Signup to create a new account to continue</p>
+    
+    <div class="btn-group" role="group" aria-label="login and signup"></div>
+        <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#login" aria-expanded="false" aria-controls="login">
+            Login
+        </button>
+        <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#signup" aria-expanded="false" aria-controls="signup">
+            Signup
+        </button>
+    </div>
+
+    <div class="collapse" id="login">
+        <div class="card card-body">
+            {%include "login.html" %}
+        </div>
+    </div>
+
+     <div class="collapse" id="signup">
+        <div class="card card-body">
+            {%include "signup.html" %}
+        </div>
+    </div>
+
+</p>
+
+
+
 
 {% endblock %}

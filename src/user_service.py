@@ -37,25 +37,25 @@ class UserService:
             return None
         
 
-    def add_expense(self, user_id, expense_type, amount, date, description):
+    def add_transaction(self, user_id, transaction_type, amount: float, date, description):
         try:
-            expense = self.db.create_expense(user_id, expense_type, amount, date, description)
+            expense = self.db.create_transaction(user_id, transaction_type, amount, date, description)
             if expense:
                 print(f"expense created {expense['id']}")
             return expense 
         except Exception as e:
-            print(f"failed to add expense {e}")
+            print(f"failed to add transaction {e}")
             return None
         
-    def get_all_user_expenses(self, user_id):
+    def get_all_user_transactions(self, user_id):
         try:
-            expenses = self.db.get_all_user_expenses(user_id)
+            expenses = self.db.get_all_user_transactions(user_id)
             if expenses:
                 print("expenses fetched OK")
                 print(expenses)
                 return expenses     
         except Exception as e:
-            print(f"failed to add expense {e}")
+            print(f"failed to add transaction {e}")
             return None
                
 

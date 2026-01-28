@@ -77,6 +77,11 @@ def index():
 def privacy():
     return render_template("/privacy.html")
 
+
+@app.route("/expense_form.html", methods=["GET"])
+def expense_form():
+    return render_template("/expense_form.html")
+
      
 @app.route("/signup.html", methods=["POST"])
 def signup():
@@ -108,12 +113,13 @@ def login():
         session['username'] = username
         session['user_id'] = user['id']
 
-        expenses = user_service.get_all_user_expenses(user['id'])
+        transactions = user_service.get_all_user_transactions(user['id'])
 
 
     else:
         log.info(f"Failed to login user {username}")
     return redirect("/")
+
 
 @app.route('/add_expense', methods=["POST"])    
 def add_expense():
@@ -123,8 +129,10 @@ def add_expense():
     date = request.form["date"]
     user_id = session["user_id"]
 
-    print(f"submitted amount={amount} type={expense_type} {description} {date}")
-    expense = user_service.add_expense(user_id, expense_type, amount, date, description)
+    negative_amount = -float(amount)
+
+    print(f"submitted expense amount={amount} type={expense_type} {description} {date}")
+    expense = user_service.add_transaction(user_id, expense_type, negative_amount, date, description)
 
     if expense:
         print("successfully added expense")
