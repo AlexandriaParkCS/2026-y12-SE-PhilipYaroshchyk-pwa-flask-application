@@ -82,7 +82,11 @@ def privacy():
 def expense_form():
     return render_template("/expense_form.html")
 
-     
+
+@app.route("/goal_form.html", methods=["GET"])
+def goal_form():
+    return render_template("/goal_form.html")
+
 @app.route("/signup.html", methods=["POST"])
 def signup():
     email = request.form["email"]
@@ -139,6 +143,27 @@ def add_expense():
     else:
         print("failed to add expense")    
 
+
+    return redirect("/")
+
+@app.route('/add_goal', methods=["POST"])    
+def add_goal():
+
+    user_id = session["user_id"]
+
+    amount = request.form["amount"]
+    goal_name = request.form["goal_name"]
+    start_date = request.form["start_date"]
+    end_date = request.form["end_date"]
+
+
+    print(f"add goal called amount={amount} name={goal_name} {start_date} {end_date}")
+    goal = user_service.add_goal(user_id, amount, goal_name, start_date, end_date)
+
+    if goal:
+        print("successfully added goal")
+    else:
+        print("failed to add goal")    
 
     return redirect("/")
 

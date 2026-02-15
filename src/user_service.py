@@ -57,6 +57,16 @@ class UserService:
         except Exception as e:
             print(f"failed to add transaction {e}")
             return None
+        
+    def add_goal(self, user_id, amount: float, goal_name, start_date, end_date, parent_goal_id=None):
+        try:
+            goal = self.db.create_goal(user_id, amount, goal_name, start_date, end_date, parent_goal_id)
+            if goal:
+                print(f"goal created {goal['id']}")
+            return goal 
+        except Exception as e:
+            print(f"failed to add goal {e}")
+            return None
                
 
 

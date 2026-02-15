@@ -36,6 +36,23 @@ class SqlDb(object):
             """)
 
 
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS goals (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                amount FLOAT NOT NULL,        
+                goal_name TEXT NOT NULL,
+                start_date TEXT NOT NULL, 
+                end_date TEXT NOT NULL,
+                created_date TEXT NOT NULL,
+                updated_date TEXT,
+                           
+                parent_goal_id INTEGER,           
+                FOREIGN KEY (user_id) REFERENCES users(id), 
+                FOREIGN KEY (parent_goal_id) REFERENCES goals(id) 
+                )
+           """)
+
             conn.commit()
         except sqlite3.Error as e:
             print(f"Error creating table: {e}")
@@ -185,6 +202,31 @@ class SqlDb(object):
                 return None
         except Exception as e:
             print(f"Database error during transactions retrieval: {e}")
+        finally:
+            if cursor: 
+                cursor.close()
+            if conn: 
+                conn.close()
+
+    def create_goal(self, user_id, amount, goal_name, start_date, end_date, parent_goal_id=None):
+        conn = None
+        try:
+            conn = self._connect()
+            cursor = conn.cursor()
+            cursor.execute(
+                "INSERT INTO goals (user_id, amount, goal_name, start_date, end_date, created_date, parent_goal_id) VALUES (?, ?, ?, ?, ?, datetime('now'), ?)",
+                (user_id, amount, goal_name, start_date, end_date, parent_goal_id)
+            )
+            conn.commit()
+            goal_id = cursor.lastrowid
+            return {"id": goal_id}
+        except sqlite3.IntegrityError:
+            print("Error: Failed to create goal.")
+            # return error
+            raise
+        except sqlite3.Error as e:
+            print(f"Database error during goal creation: {e}")
+            raise
         finally:
             if cursor: 
                 cursor.close()

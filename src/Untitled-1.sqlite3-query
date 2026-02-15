@@ -1,0 +1,14 @@
+-- database: /Users/philipyaroshchyk/programming/2026-y12-SE-PhilipYaroshchyk-pwa-flask-application/runtime/db/sql.db
+
+
+delete from users where id > 1;
+
+select * from users;
+
+SELECT id, username, email, password_hash FROM users WHERE username = 'test';
+
+
+select * from transactions;
+
+
+select * from goals;

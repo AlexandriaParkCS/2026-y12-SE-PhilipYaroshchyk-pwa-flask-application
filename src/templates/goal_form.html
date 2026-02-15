@@ -1,0 +1,42 @@
+
+{% extends 'layout.html' %}
+{% block content %}
+
+ {% include "app_menu.html" %}
+
+<div class="container">
+  <div class="row">
+    <h3>Add New Goal</h3>
+    <form action="/add_goal" method="POST" class="box">
+     <div class="col-auto">
+        <label for="amount" class="form-label">Amount</label>
+        <input name="amount" required type="text" class="form-control" pattern="^[0-9]+(?:\.[0-9]+)?$" placeholder="Amount">
+      </div>
+
+      <div class="goal_name">
+        <label for="goal_name" class="form-label">Goal Name</label>
+        <input name="goal_name" required type="text" class="form-control" placeholder="Goal Name">
+      </div>
+
+      <div class="start_date">
+        <label for="start_date" class="form-label">Start Date</label>
+        <input name="start_date" required type="text" class="form-control" placeholder="YYYY-MM-DD">
+      </div>
+
+      <div class="end_date">
+        <label for="end_date" class="form-label">End Date</label>
+        <input name="end_date" required type="text" class="form-control" placeholder="YYYY-MM-DD">
+      </div>
+
+
+      <input type="hidden" name="csrf_token" value = "{{ csrf_token() }}" />
+
+      <br/>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-primary mb-3">Submit</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
