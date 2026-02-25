@@ -182,33 +182,6 @@ class SqlDb(object):
             if conn: 
                 conn.close()
 
-    def get_all_user_transactions(self, user_id):
-        conn = None
-        try:
-            conn = self._connect()
-            cursor = conn.cursor()
-            cursor.execute(
-                "SELECT id, user_id, transaction_type, amount, transaction_date, description FROM transactions WHERE user_id = ?",
-                (user_id,)
-            )
-            rows = cursor.fetchall()
-
-            if rows:
-                list = []
-                for row in rows:
-                    list.append({"id": row[0], "user_id": row[1], "transaction_type": row[2], "amount": row[3], "transaction_date": row[4], "description": row[5]})
-                return list    
-
-            else:
-                return None
-        except Exception as e:
-            print(f"Database error during transactions retrieval: {e}")
-        finally:
-            if cursor: 
-                cursor.close()
-            if conn: 
-                conn.close()
-
     def create_goal(self, user_id, amount, goal_name, start_date, end_date, parent_goal_id=None):
         conn = None
         try:
