@@ -68,8 +68,11 @@ def root():
     }
 )
 def index():
-    if 'username' in session:
-        return render_template("/index.html")
+    if 'user_id' in session:
+
+        transactions = user_service.get_user_transactions(session['user_id'], 20)
+
+        return render_template("/index.html", transactions=transactions)
     else:
         return render_template("/public.html")
 
@@ -100,7 +103,7 @@ def signup():
     if user:        
         session['username'] = username
         session['user_id'] = user['id']
-        return render_template("/index.html")
+        return redirect("/")
     else:
         log.info(f"Failed to create user {username}")
         return render_template("/public.html")
@@ -116,9 +119,6 @@ def login():
     if user != None:
         session['username'] = username
         session['user_id'] = user['id']
-
-        transactions = user_service.get_all_user_transactions(user['id'])
-
 
     else:
         log.info(f"Failed to login user {username}")

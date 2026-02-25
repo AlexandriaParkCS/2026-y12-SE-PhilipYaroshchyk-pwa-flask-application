@@ -1,4 +1,5 @@
 import sqlite3
+from model.transaction import Transation
 
 class SqlDb(object):
 
@@ -226,6 +227,34 @@ class SqlDb(object):
             raise
         except sqlite3.Error as e:
             print(f"Database error during goal creation: {e}")
+            raise
+        finally:
+            if cursor: 
+                cursor.close()
+            if conn: 
+                conn.close()
+
+    def get_user_transactions(self, user_id, limit):
+        conn = None
+        try:
+            conn = self._connect()
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT id, user_id, transaction_type, amount, transaction_date, description FROM transactions WHERE user_id = ? ORDER BY transaction_date DESC LIMIT ?",
+                (user_id, limit)
+            )
+            rows = cursor.fetchall()
+            list = []
+
+            if rows:
+                for row in rows:
+                    transaction = Transation(id=row[0], user_id=row[1], transaction_type=row[2], amount=row[3], transaction_date=row[4], description=row[5])
+                    list.append(transaction)
+                return list    
+            else:
+                return list
+        except Exception as e:
+            print(f"Database error during transactions retrieval: {e}")
             raise
         finally:
             if cursor: 

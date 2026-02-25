@@ -67,6 +67,15 @@ class UserService:
         except Exception as e:
             print(f"failed to add goal {e}")
             return None
+        
+
+    def get_user_transactions(self, id, limit):    
+        try:
+            list = self.db.get_user_transactions(id, limit)
+            return list
+        except Exception as e:
+            print(f"failed to fetch transaction {e}")
+            return None     
                
 
 
