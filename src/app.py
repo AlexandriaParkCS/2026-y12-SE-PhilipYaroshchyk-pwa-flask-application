@@ -70,9 +70,11 @@ def root():
 def index():
     if 'user_id' in session:
 
-        transactions = user_service.get_user_transactions(session['user_id'], 20)
+        exp = user_service.get_user_transactions(session['user_id'], 20, is_expense=True)
+        inc = user_service.get_user_transactions(session['user_id'], 20, is_expense=False)
+        goals = user_service.get_user_goals(session['user_id'])
 
-        return render_template("/index.html", transactions=transactions)
+        return render_template("/index.html", expenses=exp, income=inc, goals=goals)
     else:
         return render_template("/public.html")
 
@@ -132,11 +134,16 @@ def add_expense():
     description = request.form["description"]
     date = request.form["date"]
     user_id = session["user_id"]
+    transaction_type = request.form["transaction_type"]
 
-    negative_amount = -float(amount)
+    amount = float(request.form["amount"])
 
-    print(f"submitted expense amount={amount} type={expense_type} {description} {date}")
-    expense = user_service.add_transaction(user_id, expense_type, negative_amount, date, description)
+    if transaction_type == "expense":
+        amount = -amount   
+         
+
+    print(f"submitted transaction_type={transaction_type} amount={amount} expdnse_type={expense_type} {description} {date}")
+    expense = user_service.add_transaction(user_id, expense_type, amount, date, description)
 
     if expense:
         print("successfully added expense")

@@ -1,5 +1,6 @@
 import sqlite3
 from model.transaction import Transation
+from model.goal import Goal
 
 class SqlDb(object):
 
@@ -207,15 +208,19 @@ class SqlDb(object):
             if conn: 
                 conn.close()
 
-    def get_user_transactions(self, user_id, limit):
+    def get_user_transactions(self, user_id, limit, is_expense):
+
+        query = None
+        if is_expense:
+            query = "SELECT id, user_id, transaction_type, amount, transaction_date, description FROM transactions WHERE user_id = ? AND amount < 0 ORDER BY transaction_date DESC LIMIT ?"
+        else:       
+            query = "SELECT id, user_id, transaction_type, amount, transaction_date, description FROM transactions WHERE user_id = ? AND amount >= 0 ORDER BY transaction_date DESC LIMIT ?"
+
         conn = None
         try:
             conn = self._connect()
             cursor = conn.cursor()
-            cursor.execute(
-                "SELECT id, user_id, transaction_type, amount, transaction_date, description FROM transactions WHERE user_id = ? ORDER BY transaction_date DESC LIMIT ?",
-                (user_id, limit)
-            )
+            cursor.execute(query, (user_id, limit))
             rows = cursor.fetchall()
             list = []
 
@@ -234,6 +239,35 @@ class SqlDb(object):
                 cursor.close()
             if conn: 
                 conn.close()
+
+
+    def get_user_goals(self, user_id):
+        conn = None
+        try:
+            conn = self._connect()
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT id, user_id, amount, goal_name, start_date, end_date, created_date, updated_date, parent_goal_id FROM goals WHERE user_id = ? ORDER BY created_date DESC",
+                (user_id,)
+            )
+            rows = cursor.fetchall()
+            list = []
+
+            if rows:
+                for row in rows:
+                    goal = Goal(id=row[0], user_id=row[1], amount=row[2], goal_name=row[3], start_date=row[4], end_date=row[5], created_date=row[6], updated_date=row[7], parent_goal_id=row[8])
+                    list.append(goal)
+                return list    
+            else:
+                return list
+        except Exception as e:
+            print(f"Database error during goals retrieval: {e}")
+            raise
+        finally:
+            if cursor: 
+                cursor.close()
+            if conn: 
+                conn.close()          
 
              
 

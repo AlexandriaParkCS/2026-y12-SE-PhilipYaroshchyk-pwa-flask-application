@@ -6,16 +6,32 @@
 
 <div class="container">
   <div class="row">
-    <h3>Add New Expense</h3>
+    <h3>Add New Transaction</h3>
     <form action="/add_expense" method="POST" class="box">
+
+      <div class="col-auto">
+
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="transaction_type" id="transaction_type" value="expense" checked>
+          <label class="form-check-label" for="expense">Expense</label>
+          </div>
+
+
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="transaction_type" id="transaction_type" value="income">
+          <label class="form-check-label" for="income">Income</label>
+        </div>
+      </div>
+
+
      <div class="col-auto">
-        <label for="expense_type" class="form-label">Expense Type</label>
-        <input name="expense_type" required type="text" class="form-control" pattern="^[a-z0-9._%+-]{2, 50}$" placeholder="Expense Type">
+        <label for="expense_type" class="form-label">Transaction Type</label>
+        <input name="expense_type" required type="text" class="form-control" pattern="^[a-z0-9._%+-]{2, 50}$" placeholder="Transaction Type">
       </div>
 
       <div class="col-auto">
         <label for="expense_type" class="form-label">Amount</label>
-        <input name="amount" required type="text" class="form-control"  placeholder="Amount">
+        <input name="amount" required type="text" class="form-control"  pattern="^[0-9]+(?:\.[0-9]+)?$" placeholder="Amount">
       </div>
 
       <div class="col-auto">

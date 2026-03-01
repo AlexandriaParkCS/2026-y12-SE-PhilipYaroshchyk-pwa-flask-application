@@ -47,17 +47,6 @@ class UserService:
             print(f"failed to add transaction {e}")
             return None
         
-    def get_all_user_transactions(self, user_id):
-        try:
-            expenses = self.db.get_all_user_transactions(user_id)
-            if expenses:
-                print("expenses fetched OK")
-                print(expenses)
-                return expenses     
-        except Exception as e:
-            print(f"failed to add transaction {e}")
-            return None
-        
     def add_goal(self, user_id, amount: float, goal_name, start_date, end_date, parent_goal_id=None):
         try:
             goal = self.db.create_goal(user_id, amount, goal_name, start_date, end_date, parent_goal_id)
@@ -69,9 +58,18 @@ class UserService:
             return None
         
 
-    def get_user_transactions(self, id, limit):    
+    def get_user_goals(self, id):
         try:
-            list = self.db.get_user_transactions(id, limit)
+            list = self.db.get_user_goals(id)
+            return list
+        except Exception as e:
+            print(f"failed to fetch goals {e}")
+            return None     
+        
+
+    def get_user_transactions(self, id, limit, is_expense):    
+        try:
+            list = self.db.get_user_transactions(id, limit, is_expense)
             return list
         except Exception as e:
             print(f"failed to fetch transaction {e}")
