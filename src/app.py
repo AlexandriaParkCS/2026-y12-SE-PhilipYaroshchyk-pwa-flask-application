@@ -70,8 +70,8 @@ def root():
 def index():
     if 'user_id' in session:
 
-        exp = user_service.get_user_transactions(session['user_id'], 20, is_expense=True)
-        inc = user_service.get_user_transactions(session['user_id'], 20, is_expense=False)
+        exp = user_service.get_user_transactions(session['user_id'], 10, is_expense=True)
+        inc = user_service.get_user_transactions(session['user_id'], 10, is_expense=False)
         goals = user_service.get_user_goals(session['user_id'])
 
         return render_template("/index.html", expenses=exp, income=inc, goals=goals)

@@ -269,6 +269,38 @@ class SqlDb(object):
             if conn: 
                 conn.close()          
 
+    def get_user_transaction_for_date_range(self, user_id, from_date, to_date):
+        conn = None
+        try:
+            conn = self._connect()
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT id, user_id, transaction_type, amount, transaction_date, description FROM transactions WHERE user_id = ? AND transaction_date >= ? AND transaction_date <= ? ORDER BY transaction_date DESC",
+                (user_id, from_date, to_date)
+            )
+            rows = cursor.fetchall()
+            list = []
+
+            if rows:
+                for row in rows:
+                    transaction = Transation(id=row[0], user_id=row[1], transaction_type=row[2], amount=row[3], transaction_date=row[4], description=row[5])
+                    list.append(transaction)
+                return list    
+            else:
+                return list
+
+
+            
+        except Exception as e:
+            print(f"Database error during transactions retrieval for date range: {e}")
+            raise 
+        finally:
+            if cursor: 
+                cursor.close()
+            if conn: 
+                conn.close()     
+
+
              
 
 # Example usage
