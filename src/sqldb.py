@@ -271,6 +271,7 @@ class SqlDb(object):
 
     def get_user_transaction_for_date_range(self, user_id, from_date, to_date):
         conn = None
+        cursor = None
         try:
             conn = self._connect()
             cursor = conn.cursor()
