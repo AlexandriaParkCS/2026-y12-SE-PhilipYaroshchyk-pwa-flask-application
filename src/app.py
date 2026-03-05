@@ -83,6 +83,15 @@ def privacy():
     return render_template("/privacy.html")
 
 
+@app.route('/summary/<goal_id>', methods=["GET"])
+def render_summary(goal_id):
+    sum = user_service.get_transaction_summary_for_a_goal(session['user_id'], goal_id)
+    if sum:
+        return render_template("/summary.html", goal_summary=sum)
+    else:
+        log.info(f"Failed to fetch summary for goal {goal_id}")
+        return redirect("/")
+
 @app.route("/expense_form.html", methods=["GET"])
 def expense_form():
     return render_template("/expense_form.html")

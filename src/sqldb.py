@@ -267,7 +267,65 @@ class SqlDb(object):
             if cursor: 
                 cursor.close()
             if conn: 
-                conn.close()          
+                conn.close()       
+
+
+    def get_goal_by_id(self, user_id, goal_id):
+        conn = None
+        try:
+            conn = self._connect()
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT id, user_id, amount, goal_name, start_date, end_date, created_date, updated_date, parent_goal_id FROM goals WHERE user_id = ? AND id = ?",
+                (user_id, goal_id)
+            )
+            result = cursor.fetchone()
+            if result:
+                return Goal(id=result[0], user_id=result[1], amount=result[2], goal_name=result[3], start_date=result[4], end_date=result[5], created_date=result[6], updated_date=result[7], parent_goal_id=result[8])
+            else:
+                return None
+        except Exception as e:
+            print(f"Database error during goal retrieval: {e}")
+            raise
+        finally:
+            if cursor: 
+                cursor.close()
+            if conn: 
+                conn.close()               
+
+
+    def get_user_transactions_for_goal(self, user_id, goal_id): 
+        conn = None
+        cursor = None
+
+        print(f"fetching transactions for user_id={user_id} goal_id={goal_id}")
+
+        try:
+            conn = self._connect()
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT t.id, t.user_id, t.transaction_type, t.amount, t.transaction_date, t.description FROM transactions AS t INNER JOIN goals AS g ON t.user_id = g.user_id WHERE t.user_id = ? and g.id = ? AND t.transaction_date >= g.start_date AND t.transaction_date <= g.end_date ORDER BY t.transaction_date DESC", (user_id, goal_id)
+            )
+            rows = cursor.fetchall()
+            list = []
+            if rows:
+                for row in rows:
+                    transaction = Transation(id=row[0], user_id=row[1], transaction_type=row[2], amount=row[3], transaction_date=row[4], description=row[5])
+                    list.append(transaction)
+                return list    
+            else:
+                return list
+
+
+        except Exception as e:
+            print(f"Database error during transactions retrieval for a goal: {e}")
+            raise 
+        finally:
+            if cursor: 
+                cursor.close()
+            if conn: 
+                conn.close()     
+
 
     def get_user_transaction_for_date_range(self, user_id, from_date, to_date):
         conn = None

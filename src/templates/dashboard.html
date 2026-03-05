@@ -18,7 +18,7 @@
             <tbody>
                 {% for goal in goals %}
                 <tr>
-                    <td>{{ goal.get_id() }}</td>
+                    <td><a href="/summary/{{goal.get_id()}}"> summary </a></td>
                     <td>{{ goal.get_amount() }}</td>
                     <td>{{ goal.get_goal_name() }}</td>
                     <td>{{ goal.get_start_date() }}</td>

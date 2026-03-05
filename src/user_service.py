@@ -2,6 +2,10 @@ from sqldb import SqlDb
 import bcrypt
 import sqlite3
 
+from model.transaction import Transation
+from model.goal import Goal
+from model.summary import Summary
+
 
 # business logic related to user account here
 class UserService:
@@ -75,7 +79,18 @@ class UserService:
             print(f"failed to fetch transaction {e}")
             return None     
                
+    def get_transaction_summary_for_a_goal(self, user_id, goal_id):
+        try:   
+            transactions = self.db.get_user_transactions_for_goal(user_id, goal_id) 
+            goal = self.db.get_goal_by_id(user_id, goal_id)
+            total_amount = 0
+            for transaction in transactions:
+                total_amount += transaction.get_amount()
 
+            return Summary(total_amount, goal)
+        except Exception as e:
+            print(f"failed to fetch transaction summary for goal {goal_id} {e}")
+            return None
 
 
             
