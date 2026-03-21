@@ -1,4 +1,5 @@
 import logging
+import uuid
 
 from flask import Flask
 from flask import render_template
@@ -86,8 +87,16 @@ def privacy():
 @app.route('/summary/<goal_id>', methods=["GET"])
 def render_summary(goal_id):
     sum = user_service.get_transaction_summary_for_a_goal(session['user_id'], goal_id)
+
+    nonce = uuid.uuid4()
+
+
     if sum:
-        return render_template("/summary.html", goal_summary=sum)
+
+        labels = [tr.get_transaction_date() for tr in sum.get_transactions()]
+        data = [tr.get_amount() for tr in sum.get_transactions()]
+
+        return render_template("/summary.html", goal_summary=sum, nonce=nonce, labels=labels, data=data)
     else:
         log.info(f"Failed to fetch summary for goal {goal_id}")
         return redirect("/")

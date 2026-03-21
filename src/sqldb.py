@@ -304,7 +304,7 @@ class SqlDb(object):
             conn = self._connect()
             cursor = conn.cursor()
             cursor.execute(
-                "SELECT t.id, t.user_id, t.transaction_type, t.amount, t.transaction_date, t.description FROM transactions AS t INNER JOIN goals AS g ON t.user_id = g.user_id WHERE t.user_id = ? and g.id = ? AND t.transaction_date >= g.start_date AND t.transaction_date <= g.end_date ORDER BY t.transaction_date DESC", (user_id, goal_id)
+                "SELECT t.id, t.user_id, t.transaction_type, t.amount, t.transaction_date, t.description FROM transactions AS t INNER JOIN goals AS g ON t.user_id = g.user_id WHERE t.user_id = ? and g.id = ? AND t.transaction_date >= g.start_date AND t.transaction_date <= g.end_date ORDER BY t.transaction_date ASC", (user_id, goal_id)
             )
             rows = cursor.fetchall()
             list = []

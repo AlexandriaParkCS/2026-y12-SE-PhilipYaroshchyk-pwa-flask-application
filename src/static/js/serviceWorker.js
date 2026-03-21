@@ -1,17 +1,17 @@
 const assets = [
     "/",
-    "static/css/style.css",
-    "static/css/style.css/bootstrap.min.css",
-    "static/js/bootstrap.bundle.min.js",
-    "static/js/app.js",
-    "static/images/logo.png",
-    "static/images/favicon.jpg",
-    "static/icons/icon-128x128.png",
-    "static/icons/icon-192x192.png",
-    "static/icons/icon-384x384.png",
-    "static/icons/icon-512x512.png",
-    "static/icons/desktop_screenshot.png",
-    "static/icons/mobile_screenshot.png"
+    "/static/css/style.css",
+    "/static/css/style.css/bootstrap.min.css",
+    "/static/js/bootstrap.bundle.min.js",
+    "/static/js/app.js",
+    "/static/images/logo.png",
+    "/static/images/favicon.jpg",
+    "/static/icons/icon-128x128.png",
+    "/static/icons/icon-192x192.png",
+    "/static/icons/icon-384x384.png",
+    "/static/icons/icon-512x512.png",
+    "/static/icons/desktop_screenshot.png",
+    "/static/icons/mobile_screenshot.png"
   ];
 
 const CATALOGUE_ASSETS = "catalogue-assets";

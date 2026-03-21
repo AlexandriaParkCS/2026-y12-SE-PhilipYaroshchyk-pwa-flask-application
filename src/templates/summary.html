@@ -6,21 +6,54 @@
 
 <div class="container">
    
-        <div class="row">
+    <div class="row">
 
-            <div>
-                <h3>Summary for goal: {{ goal_summary.get_goal().get_goal_name() }}</h3>
-            </div>
-
-        
-            <div>
-                Current total: {{ goal_summary.get_total() }}
-            </div>
-
+        <div>
+            <h3>Summary for goal: {{ goal_summary.get_goal().get_goal_name() }}</h3>
         </div>
-       
 
+    
+        <div>
+            Current total: {{ goal_summary.get_total() }}
+        </div>
 
     </div>
+
+    <canvas id="myChart"></canvas>
+       
 </div>
+
+<script nonce="{{nonce}}">
+    document.addEventListener('DOMContentLoaded', function () {
+
+        labels = {{ labels | tojson }};
+        data = {{ data | tojson }};
+        
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const myChart = new Chart(ctx, {
+            type: 'line', // Chart type: 'bar', 'line', 'pie', etc.
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Sample Data Points',
+                    data: data,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+});
+
+    
+</script>
+
 {% endblock %}
