@@ -1,6 +1,7 @@
 import sqlite3
 from model.transaction import Transation
 from model.goal import Goal
+from model.aggregation import Aggregation
 
 class SqlDb(object):
 
@@ -293,6 +294,37 @@ class SqlDb(object):
             if conn: 
                 conn.close()               
 
+
+    def get_aggretated_user_expenses_for_goal(self, user_id, goal_id):
+        conn = None
+        cursor = None
+
+        print(f"fetching aggregated expenses for user_id={user_id} goal_id={goal_id}")
+        try:
+            conn = self._connect()
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT t.transaction_type, SUM(t.amount) FROM transactions AS t INNER JOIN goals AS g ON t.user_id = g.user_id WHERE t.user_id = ? and g.id = ? AND t.transaction_date >= g.start_date AND t.transaction_date <= g.end_date AND t.amount < 0 GROUP BY t.transaction_type", (user_id, goal_id)
+            )
+            rows = cursor.fetchall()
+            list = []
+
+            if rows:
+                for row in rows:
+                    aggregation = Aggregation(name=row[0], amount=row[1])
+                    list.append(aggregation)
+                return list    
+            else:
+                return list
+
+        except Exception as e:
+            print(f"Database error during transactions retrieval for a goal: {e}")
+            raise 
+        finally:
+            if cursor: 
+                cursor.close()
+            if conn: 
+                conn.close()         
 
     def get_user_transactions_for_goal(self, user_id, goal_id): 
         conn = None

@@ -11,22 +11,26 @@
 
       <div class="col-auto">
 
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="transaction_type" id="transaction_type" value="expense" checked>
-          <label class="form-check-label" for="expense">Expense</label>
-          </div>
-
-
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="transaction_type" id="transaction_type" value="income">
-          <label class="form-check-label" for="income">Income</label>
-        </div>
-      </div>
-
-
-     <div class="col-auto">
-        <label for="expense_type" class="form-label">Transaction Type</label>
-        <input name="expense_type" required type="text" class="form-control" pattern="^[a-z0-9._%+-]{2, 50}$" placeholder="Transaction Type">
+        <select class="form-select" aria-label="Transaction Type" required name="transaction_type">
+          <option value="Income" selected>Income - all types</option>
+          <option value="Groceries">Groceries</option>
+          <option value="Eating out">Eating out</option>
+          <option value="Memberships">Memberships</option>
+          <option value="Transportation">Transportation</option>
+          <option value="Utilities">Utilities</option>
+          <option value="Rent">Rent</option>
+          <option value="Mortage payments">Mortgage payments</option>
+          <option value="Insurance">Insurance</option>
+          <option value="personal expenses">Personal expenses</option>
+          <option value="Shopping spree / consumerism">Shopping spree / consumerism</option>
+          <option value="Investments">Investments</option>
+          <option value="Travelling / Holidays ">Travelling / Holidays</option>
+          <option value="Gas">Gas</option>
+          <option value="Debt payments">Debt payments</option>
+          <option value="Hobbies">Hobbies</option>
+          <option value="other necessities">other necessities</option>
+            
+        </select>
       </div>
 
       <div class="col-auto">

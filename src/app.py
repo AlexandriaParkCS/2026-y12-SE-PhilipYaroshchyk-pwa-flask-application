@@ -96,7 +96,11 @@ def render_summary(goal_id):
         labels = [tr.get_transaction_date() for tr in sum.get_transactions()]
         data = [tr.get_amount() for tr in sum.get_transactions()]
 
-        return render_template("/summary.html", goal_summary=sum, nonce=nonce, labels=labels, data=data)
+        aggregation_labels = [agg.get_name() for agg in sum.get_aggregations()]
+        aggregation_data = [agg.get_amount() for agg in sum.get_aggregations()]
+
+        return render_template("/summary.html", goal_summary=sum, nonce=nonce, labels=labels, data=data, 
+                               aggregation_labels=aggregation_labels, aggregation_data=aggregation_data)
     else:
         log.info(f"Failed to fetch summary for goal {goal_id}")
         return redirect("/")
@@ -148,20 +152,20 @@ def login():
 @app.route('/add_expense', methods=["POST"])    
 def add_expense():
     amount = request.form["amount"]
-    expense_type = request.form["expense_type"]
     description = request.form["description"]
     date = request.form["date"]
     user_id = session["user_id"]
     transaction_type = request.form["transaction_type"]
 
+    expense_type = "Income" if transaction_type == 'Income' else 'Expense'
+
     amount = float(request.form["amount"])
 
-    if transaction_type == "expense":
+    if expense_type == "Expense":
         amount = -amount   
-         
 
     print(f"submitted transaction_type={transaction_type} amount={amount} expdnse_type={expense_type} {description} {date}")
-    expense = user_service.add_transaction(user_id, expense_type, amount, date, description)
+    expense = user_service.add_transaction(user_id, transaction_type, amount, date, description)
 
     if expense:
         print("successfully added expense")

@@ -84,11 +84,13 @@ class UserService:
         try:   
             transactions = self.db.get_user_transactions_for_goal(user_id, goal_id) 
             goal = self.db.get_goal_by_id(user_id, goal_id)
+            aggregations = self.db.get_aggretated_user_expenses_for_goal(user_id, goal_id)
+
             total_amount = 0
             for transaction in transactions:
                 total_amount += transaction.get_amount()
 
-            return Summary(total_amount, goal, transactions)
+            return Summary(total_amount, goal, transactions, aggregations)
         except Exception as e:
             print(f"failed to fetch transaction summary for goal {goal_id} {e}")
             return None

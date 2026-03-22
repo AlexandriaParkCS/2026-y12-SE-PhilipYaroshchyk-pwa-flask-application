@@ -19,7 +19,20 @@
 
     </div>
 
-    <canvas id="myChart"></canvas>
+    <div class="row">
+        <div class="col-sm">
+             <canvas id="myChart" ></canvas>
+        </div>
+       
+        <div class="col-sm">
+             <canvas id="myChart2" class="col-sm"></canvas>
+        </div>
+
+        
+
+    </div>
+
+    
        
 </div>
 
@@ -35,11 +48,8 @@
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Sample Data Points',
-                    data: data,
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
+                    label: 'Transactions over time',
+                    data: data
                 }]
             },
             options: {
@@ -50,6 +60,29 @@
                 }
             }
         });
+
+        aggregation_labels = {{ aggregation_labels | tojson }};
+        aggregation_data = {{ aggregation_data | tojson }};
+        
+        const ctx2 = document.getElementById('myChart2').getContext('2d');
+        const myChart2 = new Chart(ctx2, {
+            type: 'pie', // Chart type: 'bar', 'line', 'pie', etc.
+            data: {
+                labels: aggregation_labels,
+                datasets: [{
+                    label: 'Expenses by category',
+                    data: aggregation_data
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
 
 });
 
