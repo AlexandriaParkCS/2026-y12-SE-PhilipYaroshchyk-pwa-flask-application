@@ -15,17 +15,17 @@
 
       <div class="goal_name">
         <label for="goal_name" class="form-label">Goal Name</label>
-        <input name="goal_name" required type="text" class="form-control" placeholder="Goal Name">
+        <input name="goal_name" required type="text" class="form-control" placeholder="Goal Name" pattern="^[a-zA-Z0-9\s]{2,50}$">
       </div>
 
       <div class="start_date">
         <label for="start_date" class="form-label">Start Date</label>
-        <input name="start_date" required type="text" class="form-control" placeholder="YYYY-MM-DD">
+        <input name="start_date" required type="text" class="form-control" placeholder="YYYY-MM-DD" pattern="^[0-9]{4}-[0-9]{2}-[0-9]{2}$">
       </div>
 
       <div class="end_date">
         <label for="end_date" class="form-label">End Date</label>
-        <input name="end_date" required type="text" class="form-control" placeholder="YYYY-MM-DD">
+        <input name="end_date" required type="text" class="form-control" placeholder="YYYY-MM-DD" pattern="^[0-9]{4}-[0-9]{2}-[0-9]{2}$">
       </div>
 
 

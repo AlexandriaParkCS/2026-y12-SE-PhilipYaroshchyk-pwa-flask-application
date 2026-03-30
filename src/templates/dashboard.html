@@ -5,55 +5,73 @@
 <div class="card mb-4">
     <div class="card-body">
         <h5 class="card-title">User Goals</h5>
-        <table class="table table-striped table-bordered">
-            <thead>
-                <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Amount</th>
-                    <th scope="col">Goal Name</th>
-                    <th scope="col">Start Date</th>
-                    <th scope="col">Deadline</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for goal in goals %}
-                <tr>
-                    <td><a href="/summary/{{goal.get_id()}}"> summary </a></td>
-                    <td>{{ goal.get_amount() }}</td>
-                    <td>{{ goal.get_goal_name() }}</td>
-                    <td>{{ goal.get_start_date() }}</td>
-                    <td>{{ goal.get_end_date() }}</td>
-                </tr>
-                {% endfor %}
-        </table>
+
+
+         {% if goals %}
+
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Amount</th>
+                        <th scope="col">Goal Name</th>
+                        <th scope="col">Start Date</th>
+                        <th scope="col">Deadline</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for goal in goals %}
+                    <tr>
+                        <td><a href="/summary/{{goal.get_id()}}"> summary </a></td>
+                        <td>{{ goal.get_amount() }}</td>
+                        <td>{{ goal.get_goal_name() }}</td>
+                        <td>{{ goal.get_start_date() }}</td>
+                        <td>{{ goal.get_end_date() }}</td>
+                    </tr>
+                    {% endfor %}
+            </table>
+
+        {% else %}
+
+            <p>No goals found. <a href="/goal_form.html">Add a new goal</a> to get started!</p>
+
+        {% endif %}
     </div>
 </div>    
 
 <div class="card mb-4">
     <div class="card-body">
         <h5 class="card-title">Recent Expenses</h5>
-        <table class="table table-striped table-bordered">
-            <thead>
-                <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Type</th>
-                    <th scope="col">Amount</th>
-                    <th scope="col">Date</th>
-                    <th scope="col">Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for tr in expenses %}
-                <tr>
-                    <td>{{ tr.get_id() }}</td>
-                    <td>{{ tr.get_transaction_type() }}</td>
-                    <td>{{ tr.get_amount() }}</td>
-                    <td>{{ tr.get_transaction_date() }}</td>
-                    <td>{{ tr.get_description() }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+
+
+         {% if expenses %}
+
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Amount</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tr in expenses %}
+                    <tr>
+                        <td>{{ tr.get_id() }}</td>
+                        <td>{{ tr.get_transaction_type() }}</td>
+                        <td>{{ tr.get_amount() }}</td>
+                        <td>{{ tr.get_transaction_date() }}</td>
+                        <td>{{ tr.get_description() }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No expenses found. <a href="/expense_form.html">Add a new expense</a> to get started!</p>
+        {% endif %}
+
     </div>
 </div>
 
@@ -62,27 +80,37 @@
 <div class="card mb-4">
     <div class="card-body">
         <h5 class="card-title">Recent Income</h5>
-        <table class="table table-striped table-bordered">
-            <thead>
-                <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Type</th>
-                    <th scope="col">Amount</th>
-                    <th scope="col">Date</th>
-                    <th scope="col">Description</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for tr in income %}
-                <tr>
-                    <td>{{ tr.get_id() }}</td>
-                    <td>{{ tr.get_transaction_type() }}</td>
-                    <td>{{ tr.get_amount() }}</td>
-                    <td>{{ tr.get_transaction_date() }}</td>
-                    <td>{{ tr.get_description() }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+
+        {% if income %}
+
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Amount</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tr in income %}
+                    <tr>
+                        <td>{{ tr.get_id() }}</td>
+                        <td>{{ tr.get_transaction_type() }}</td>
+                        <td>{{ tr.get_amount() }}</td>
+                        <td>{{ tr.get_transaction_date() }}</td>
+                        <td>{{ tr.get_description() }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        {% else %}
+
+            <p>No income found. <a href="/expense_form.html">Add a new income</a> to get started!</p>
+
+        {% endif %}
+
     </div>
 </div>

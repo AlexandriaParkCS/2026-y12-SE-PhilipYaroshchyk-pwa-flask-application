@@ -7,6 +7,14 @@
     <h2>Welcome to BreakingBank</h2>
 
     <p>You need to Login or Signup to create a new account to continue</p>
+
+    
+    {% if error_message %}
+    <div class="alert alert-danger">
+        <strong>Error:</strong> {{ error_message }}
+    </div>
+    {% endif %}
+
     
     <div class="btn-group" role="group" aria-label="login and signup"></div>
         <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#login" aria-expanded="false" aria-controls="login">

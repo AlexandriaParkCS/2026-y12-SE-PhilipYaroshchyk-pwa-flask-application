@@ -19,11 +19,8 @@ class UserService:
     # email and hashed password
     def signup(self, username, email, password):
         print(f"signing up new user: {username}, {email}")
-        try:
-            password_hash = bcrypt.hashpw(password.encode('utf-8'), self.salt)
-            return self.db.create_user(username, email, password_hash)
-        except sqlite3.IntegrityError:
-            return None
+        password_hash = bcrypt.hashpw(password.encode('utf-8'), self.salt)
+        return self.db.create_user(username, email, password_hash)
     
 
     def login(self, username, password):
@@ -35,10 +32,10 @@ class UserService:
                     return user
                 else:
                     print("password incorrect")
-                    return None
-        except sqlite3.IntegrityError:
+                    raise Exception("password incorrect")
+        except sqlite3.IntegrityError as e:
             print(f"database error, failed to login user {username}")        
-            return None
+            raise e
         
 
     def add_transaction(self, user_id, transaction_type, amount: float, date, description):
@@ -49,7 +46,7 @@ class UserService:
             return expense 
         except Exception as e:
             print(f"failed to add transaction {e}")
-            return None
+            raise e
         
     def add_goal(self, user_id, amount: float, goal_name, start_date, end_date, parent_goal_id=None):
         try:
@@ -59,7 +56,7 @@ class UserService:
             return goal 
         except Exception as e:
             print(f"failed to add goal {e}")
-            return None
+            raise e
         
 
     def get_user_goals(self, id):
@@ -68,7 +65,7 @@ class UserService:
             return list
         except Exception as e:
             print(f"failed to fetch goals {e}")
-            return None     
+            raise e    
         
 
     def get_user_transactions(self, id, limit, is_expense):    
@@ -77,7 +74,7 @@ class UserService:
             return list
         except Exception as e:
             print(f"failed to fetch transaction {e}")
-            return None     
+            raise e    
                
     def get_transaction_summary_for_a_goal(self, user_id, goal_id):
 
@@ -86,14 +83,18 @@ class UserService:
             goal = self.db.get_goal_by_id(user_id, goal_id)
             aggregations = self.db.get_aggretated_user_expenses_for_goal(user_id, goal_id)
 
+
             total_amount = 0
             for transaction in transactions:
                 total_amount += transaction.get_amount()
 
-            return Summary(total_amount, goal, transactions, aggregations)
+
+            tip = f"Your total expenses for this goal is ${total_amount}. You have ${goal.get_amount() - total_amount} left to save to reach your goal of ${goal.get_amount()}"    
+
+            return Summary(total_amount, goal, transactions, aggregations, tip)
         except Exception as e:
             print(f"failed to fetch transaction summary for goal {goal_id} {e}")
-            return None
+            raise e
 
 
             

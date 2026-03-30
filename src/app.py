@@ -99,8 +99,11 @@ def render_summary(goal_id):
         aggregation_labels = [agg.get_name() for agg in sum.get_aggregations()]
         aggregation_data = [agg.get_amount() for agg in sum.get_aggregations()]
 
+        tip = sum.get_tip()
+
         return render_template("/summary.html", goal_summary=sum, nonce=nonce, labels=labels, data=data, 
-                               aggregation_labels=aggregation_labels, aggregation_data=aggregation_data)
+                               aggregation_labels=aggregation_labels, aggregation_data=aggregation_data,
+                               tip=tip)
     else:
         log.info(f"Failed to fetch summary for goal {goal_id}")
         return redirect("/")
@@ -122,31 +125,38 @@ def signup():
 
     log.info(f"creating new user {username}")
 
-    user = user_service.signup(username, email, password)
-    
-    if user:        
+    try:
+        user = user_service.signup(username, email, password)
         session['username'] = username
         session['user_id'] = user['id']
         return redirect("/")
-    else:
+
+    except Exception as e:
         log.info(f"Failed to create user {username}")
-        return render_template("/public.html")
-        
+        return render_template("/public.html", error_message=str(e))
     
 
 @app.route('/login', methods=["POST"])    
 def login():
     username = request.form["username"]
     password = request.form["password"]
-    user = user_service.login(username, password)
 
-    if user != None:
-        session['username'] = username
-        session['user_id'] = user['id']
 
-    else:
+    try:
+        user = user_service.login(username, password)
+
+        if user != None:
+            session['username'] = username
+            session['user_id'] = user['id']
+            log.info(f"successfully logged in user {username}")
+
+            return redirect("/")
+        else:
+            log.info(f"Failed to login user {username}")
+            return render_template("/public.html", error_message="Failed to login")
+    except Exception as e:
         log.info(f"Failed to login user {username}")
-    return redirect("/")
+        return render_template("/public.html", error_message=str(e))    
 
 
 @app.route('/add_expense', methods=["POST"])    

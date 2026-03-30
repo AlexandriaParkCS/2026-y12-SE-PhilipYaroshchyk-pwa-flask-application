@@ -12,9 +12,11 @@
             <h3>Summary for goal: {{ goal_summary.get_goal().get_goal_name() }}</h3>
         </div>
 
-    
         <div>
-            Current total: {{ goal_summary.get_total() }}
+            Goal target: ${{ goal_summary.get_goal().get_amount()  }}
+        </div>
+        <div>
+            Current total: ${{ goal_summary.get_total() }}
         </div>
 
     </div>
@@ -22,14 +24,16 @@
     <div class="row">
         <div class="col-sm">
              <canvas id="myChart" ></canvas>
+
+             <div class="mt-5"> Insight: {{ tip }} </div>
         </div>
+
        
         <div class="col-sm">
              <canvas id="myChart2" class="col-sm"></canvas>
         </div>
 
-        
-
+    
     </div>
 
     

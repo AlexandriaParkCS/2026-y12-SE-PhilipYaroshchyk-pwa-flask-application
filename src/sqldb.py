@@ -83,6 +83,7 @@ class SqlDb(object):
             raise
         except sqlite3.Error as e:
             print(f"Database error during user creation: {e}")
+            raise
         finally:
             if cursor: 
                 cursor.close()
@@ -106,6 +107,7 @@ class SqlDb(object):
             
         except sqlite3.Error as e:
             print(f"Database error during user retrieval: {e}")
+            raise
         finally:
             if cursor: 
                 cursor.close()
