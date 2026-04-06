@@ -18,7 +18,9 @@
 
        <div class="col-auto">
         <label for="exampleFormControlTextarea1" class="form-label">Password</label>
-        <input name="password" type="password" class="form-control" id="exampleFormControlInput1" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).*$" placeholder="must have at last one lower case, uppper case, special character and a digit">
+        <input name="password" type="password" class="form-control" id="exampleFormControlInput1" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,50}$" 
+        title="Please use password that contains at least 8 characters with a lower case, upper case, special character and a digit."
+        placeholder="must have at last one lower case, uppper case, special character and a digit">
       </div>
 
       <br/>
