@@ -17,6 +17,10 @@ body {
     /* width: fit-content */
 }
 
+.top-space {
+    margin-top: 20px;
+}
+
 
 .navbar-breaking-bank {
     background-color: rgb(140, 211, 181);

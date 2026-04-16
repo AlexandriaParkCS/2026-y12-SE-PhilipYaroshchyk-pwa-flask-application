@@ -79,8 +79,9 @@ def index():
     else:
         return render_template("/public.html")
 
-@app.route("/privacy.html", methods=["GET"])
-def privacy():
+
+@app.route("/privacy_policy.html", methods=["GET"])
+def privacy_policy():
     return render_template("/privacy.html")
 
 
