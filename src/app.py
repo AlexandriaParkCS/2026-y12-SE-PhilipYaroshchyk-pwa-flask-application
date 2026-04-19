@@ -87,27 +87,32 @@ def privacy_policy():
 
 @app.route('/summary/<goal_id>', methods=["GET"])
 def render_summary(goal_id):
-    sum = user_service.get_transaction_summary_for_a_goal(session['user_id'], goal_id)
 
-    nonce = uuid.uuid4()
+    try:
+        sum = user_service.get_transaction_summary_for_a_goal(session['user_id'], goal_id)
+
+        nonce = uuid.uuid4()
 
 
-    if sum:
+        if sum:
 
-        labels = [tr.get_transaction_date() for tr in sum.get_transactions()]
-        data = [tr.get_amount() for tr in sum.get_transactions()]
+            labels = [tr.get_transaction_date() for tr in sum.get_transactions()]
+            data = [tr.get_amount() for tr in sum.get_transactions()]
 
-        aggregation_labels = [agg.get_name() for agg in sum.get_aggregations()]
-        aggregation_data = [agg.get_amount() for agg in sum.get_aggregations()]
+            aggregation_labels = [agg.get_name() for agg in sum.get_aggregations()]
+            aggregation_data = [agg.get_amount() for agg in sum.get_aggregations()]
 
-        tip = sum.get_tip()
+            tip = sum.get_tip()
 
-        return render_template("/summary.html", goal_summary=sum, nonce=nonce, labels=labels, data=data, 
-                               aggregation_labels=aggregation_labels, aggregation_data=aggregation_data,
-                               tip=tip)
-    else:
-        log.info(f"Failed to fetch summary for goal {goal_id}")
-        return redirect("/")
+            return render_template("/summary.html", goal_summary=sum, nonce=nonce, labels=labels, data=data, 
+                                aggregation_labels=aggregation_labels, aggregation_data=aggregation_data,
+                                tip=tip)
+        else:
+        
+            return render_template("/error.html", error_message="Summary not found")
+    except Exception as e:
+        log.info(f"Failed to fetch summary for goal {goal_id} {e}")
+        return render_template("/error.html", error_message=f"Failed to fetch summary for goal {goal_id} {str(e)}")    
 
 @app.route("/expense_form.html", methods=["GET"])
 def expense_form():
