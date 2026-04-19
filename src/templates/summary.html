@@ -21,6 +21,8 @@
 
     </div>
 
+    {% if data %}
+
     <div class="row">
         <div class="col-sm">
             <h4>Income and Expenses Over Time</h4>
@@ -34,6 +36,16 @@
             <canvas id="myChart2" class="col-sm"></canvas>
         </div>
     </div>
+
+    {% else %}
+
+    <div class="row">
+        <div class="col-sm">
+            <p>No transactions found for this goal. <a href="/expense_form.html">Add a new transaction</a> to get started!</p>
+        </div>
+    </div>
+
+    {% endif %}
 
     
        
