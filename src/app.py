@@ -112,7 +112,7 @@ def render_summary(goal_id):
             return render_template("/error.html", error_message="Summary not found")
     except Exception as e:
         log.info(f"Failed to fetch summary for goal {goal_id} {e}")
-        return render_template("/error.html", error_message=f"Failed to fetch summary for goal {goal_id} {str(e)}")    
+        return render_template("/error.html", error_message="Failed to fetch summary for goal")    
 
 @app.route("/expense_form.html", methods=["GET"])
 def expense_form():
