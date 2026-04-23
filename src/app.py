@@ -79,6 +79,19 @@ def index():
     else:
         return render_template("/public.html")
 
+@app.route("/expenses.html", methods=["GET"])
+def expenses():
+
+    if 'user_id' in session:
+
+        try:
+            exp = user_service.get_all_user_transactions(session['user_id'])
+            return render_template("/expenses.html", expenses=exp)
+        except Exception as e:
+            return render_template("/error.html", error_message="Failed to fetch expenses for user")
+    else:
+        return render_template("/public.html")
+
 
 @app.route("/privacy_policy.html", methods=["GET"])
 def privacy_policy():

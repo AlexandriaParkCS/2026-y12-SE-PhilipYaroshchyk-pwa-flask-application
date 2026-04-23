@@ -96,6 +96,15 @@ class UserService:
             print(f"failed to fetch transaction summary for goal {goal_id} {e}")
             raise e
 
+    def get_all_user_transactions(self, user_id):
+        
+        try: 
+            return self.db.get_all_user_transactions(user_id) 
+        
+        except Exception as e:
+            print(f"failed to fetch all expenses for user {user_id} {e}")
+            raise e
+            
 
             
 

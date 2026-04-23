@@ -1,0 +1,49 @@
+{% extends 'layout.html' %}
+{% block content %}
+
+{% include "app_menu.html" %}
+
+
+<div class="container">
+
+    {% if expenses %}
+
+       <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">All Transactions (Income and Expenses)</h5>
+                <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        
+                        <th scope="col">Type</th>
+                        <th scope="col">Amount</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tr in expenses %}
+                    <tr>
+                        
+                        <td>{{ tr.get_transaction_type() }}</td>
+                        <td>{{ tr.get_amount() }}</td>
+                        <td>{{ tr.get_transaction_date() }}</td>
+                        <td>{{ tr.get_description() }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+
+
+            </div>    
+       </div>    
+
+    {% else %}
+
+        No transactions yet.
+
+    {% endif %}
+</div>
+
+{% endblock %}

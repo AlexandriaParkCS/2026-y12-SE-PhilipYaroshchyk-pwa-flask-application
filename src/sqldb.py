@@ -273,6 +273,31 @@ class SqlDb(object):
                 conn.close()       
 
 
+    def get_all_user_transactions(self, user_id):
+        conn = None
+        try:
+            conn = self._connect()
+            cursor = conn.cursor()
+            cursor.execute("SELECT id, user_id, transaction_type, amount, transaction_date, description FROM transactions WHERE user_id = ? ORDER BY transaction_date DESC", 
+                           (user_id,))
+            rows = cursor.fetchall()
+            list = []
+            for r in rows:
+                transaction = Transation(id=r[0], user_id=r[1], transaction_type=r[2], amount=r[3], transaction_date=r[4], description=r[5]) 
+                list.append(transaction)
+            return list
+        
+        except Exception as e:
+            print(f"Database error during expenses retrieval: {e}")
+            raise
+        finally:
+            if cursor: 
+                cursor.close()
+            if conn: 
+                conn.close()       
+
+
+
     def get_goal_by_id(self, user_id, goal_id):
         conn = None
         try:
