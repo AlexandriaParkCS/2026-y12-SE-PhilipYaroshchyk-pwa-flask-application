@@ -10,6 +10,7 @@ from flask import url_for
 from flask_wtf import CSRFProtect
 from flask_csp.csp import csp_header
 from user_service import UserService
+from datetime import datetime
 
 from sqldb import SqlDb
 # OR
@@ -26,8 +27,8 @@ logging.basicConfig(
 
 
 
-sql_db = SqlDb("../runtime/db/sql.db")
-user_service = UserService(sql_db)
+sql_db = SqlDb("../runtime/db/sql.db", log=log)
+user_service = UserService(sql_db, log)
 
 
 # OR
@@ -69,37 +70,49 @@ def root():
     }
 )
 def index():
-    if 'user_id' in session:
-
+    if not 'user_id' in session:
+        return render_template("/public.html")
+    try:
         exp = user_service.get_user_transactions(session['user_id'], 10, is_expense=True)
         inc = user_service.get_user_transactions(session['user_id'], 10, is_expense=False)
         goals = user_service.get_user_goals(session['user_id'])
 
         return render_template("/index.html", expenses=exp, income=inc, goals=goals)
-    else:
-        return render_template("/public.html")
+    except Exception as e:
+        log.info(f"Failed to fetch data for user {session['user_id']} {e}")
+        return render_template("/error.html", error_message="Failed to fetch data for user")
+        
 
 @app.route("/expenses.html", methods=["GET"])
 def expenses():
 
-    if 'user_id' in session:
+    # if user is not logged in, redirect to public page 
+    if not 'user_id' in session:
+         return render_template("/public.html")
 
-        try:
-            exp = user_service.get_all_user_transactions(session['user_id'])
-            return render_template("/expenses.html", expenses=exp)
-        except Exception as e:
-            return render_template("/error.html", error_message="Failed to fetch expenses for user")
-    else:
-        return render_template("/public.html")
+    try:
+        exp = user_service.get_all_user_transactions(session['user_id'])
+        return render_template("/expenses.html", expenses=exp)
+    except Exception as e:
+        return render_template("/error.html", error_message="Failed to fetch expenses for user")
+       
 
 
 @app.route("/privacy_policy.html", methods=["GET"])
 def privacy_policy():
+    # if user is not logged in, redirect to public page 
+    if not 'user_id' in session:
+        return render_template("/public.html")
+    
     return render_template("/privacy.html")
 
 
 @app.route('/summary/<goal_id>', methods=["GET"])
 def render_summary(goal_id):
+
+    # if user is not logged in, redirect to public page 
+    if not 'user_id' in session:
+        return render_template("/public.html")
 
     try:
         sum = user_service.get_transaction_summary_for_a_goal(session['user_id'], goal_id)
@@ -109,13 +122,13 @@ def render_summary(goal_id):
 
         if sum:
 
-            labels = [tr.get_transaction_date() for tr in sum.get_transactions()]
-            data = [tr.get_amount() for tr in sum.get_transactions()]
+            labels = [tr.transaction_date for tr in sum.transactions]
+            data = [tr.amount for tr in sum.transactions]
 
-            aggregation_labels = [agg.get_name() for agg in sum.get_aggregations()]
-            aggregation_data = [agg.get_amount() for agg in sum.get_aggregations()]
+            aggregation_labels = [agg.name for agg in sum.aggregations]
+            aggregation_data = [agg.amount for agg in sum.aggregations]
 
-            tip = sum.get_tip()
+            tip = sum.tip
 
             return render_template("/summary.html", goal_summary=sum, nonce=nonce, labels=labels, data=data, 
                                 aggregation_labels=aggregation_labels, aggregation_data=aggregation_data,
@@ -129,11 +142,22 @@ def render_summary(goal_id):
 
 @app.route("/expense_form.html", methods=["GET"])
 def expense_form():
+
+    # if user is not logged in, redirect to public page 
+    if not 'user_id' in session:
+        return render_template("/public.html")
+
     return render_template("/expense_form.html")
 
 
 @app.route("/goal_form.html", methods=["GET"])
 def goal_form():
+
+    # if user is not logged in, redirect to public page 
+    if not 'user_id' in session:
+        return render_template("/public.html")
+
+
     return render_template("/goal_form.html")
 
 @app.route("/signup.html", methods=["POST"])
@@ -180,50 +204,82 @@ def login():
 
 @app.route('/add_expense', methods=["POST"])    
 def add_expense():
-    amount = request.form["amount"]
-    description = request.form["description"]
-    date = request.form["date"]
-    user_id = session["user_id"]
-    transaction_type = request.form["transaction_type"]
 
-    expense_type = "Income" if transaction_type == 'Income' else 'Expense'
+    # if user is not logged in, redirect to public page 
+    if not 'user_id' in session:
+        return render_template("/public.html")
+    
 
-    amount = float(request.form["amount"])
-
-    if expense_type == "Expense":
-        amount = -amount   
-
-    print(f"submitted transaction_type={transaction_type} amount={amount} expdnse_type={expense_type} {description} {date}")
-    expense = user_service.add_transaction(user_id, transaction_type, amount, date, description)
-
-    if expense:
-        print("successfully added expense")
-    else:
-        print("failed to add expense")    
+    try:
+        amount_dollars = request.form["amount"]
+        # optional field, can be empty
+        description = request.form["description"]
+        date = request.form["date"]
+        user_id = session["user_id"]
+        transaction_type = request.form["transaction_type"]
 
 
-    return redirect("/")
+        if not is_valid_float(amount_dollars):
+            return render_template("/expense_form.html", error_message="Invalid amount format")
+        
+        if not is_valid_date(date):
+            return render_template("/expense_form.html", error_message="Invalid date format. Use YYYY-MM-DD")
+        
+        if not is_valid_length_optional(description, 2, 50):
+            return render_template("/expense_form.html", error_message="Description is opional. If provided, must be between 2 and 50 characters if provided")
+        
+        expense_type = "Income" if transaction_type == 'Income' else 'Expense'
+        expense = user_service.add_transaction(user_id, transaction_type, amount_dollars, date, description, expense_type)
+
+        if expense:
+            log.info("successfully added expense")
+        else:
+            log.info("failed to add expense")    
+
+        return redirect("/")
+    
+    except Exception as e:
+        log.info(f"Failed to add_expense {e}")
+        return render_template("/expense_form.html", error_message="Failed to add expense. Please try again.")
 
 @app.route('/add_goal', methods=["POST"])    
 def add_goal():
 
-    user_id = session["user_id"]
 
-    amount = request.form["amount"]
-    goal_name = request.form["goal_name"]
-    start_date = request.form["start_date"]
-    end_date = request.form["end_date"]
+    # if user is not logged in, redirect to public page 
+    if not 'user_id' in session:
+        return render_template("/public.html")
+    
+    try: 
+
+        user_id = session["user_id"]
+        amount_dollars = request.form["amount"]
+        goal_name = request.form["goal_name"]
+        start_date = request.form["start_date"]
+        end_date = request.form["end_date"]
 
 
-    print(f"add goal called amount={amount} name={goal_name} {start_date} {end_date}")
-    goal = user_service.add_goal(user_id, amount, goal_name, start_date, end_date)
+        if not is_valid_float(amount_dollars):
+            return render_template("/goal_form.html", error_message="Invalid amount format")
 
-    if goal:
-        print("successfully added goal")
-    else:
-        print("failed to add goal")    
+        if not is_valid_date(start_date) or not is_valid_date(end_date):
+            return render_template("/goal_form.html", error_message="Invalid date format. Use YYYY-MM-DD")
+        
+        if not is_valid_length_required(goal_name, 2, 50):
+            return render_template("/goal_form.html", error_message="Goal name must be between 2 and 50 characters and is required")
 
-    return redirect("/")
+        goal = user_service.add_goal(user_id, amount_dollars, goal_name, start_date, end_date)
+
+        if goal:
+            log.info("successfully added goal")
+        else:
+            log.info("failed to add goal")    
+
+        return redirect("/")
+    
+    except Exception as e:
+        log.info(f"Failed to add goal {e}")
+        return render_template("/goal_form.html", error_message="Failed to add goal. Please try again.")
 
 
 
@@ -234,6 +290,35 @@ def logout():
     session.pop('user_id', None)
     return redirect("/") 
 
+
+
+def is_valid_date(date_str):
+    try:
+        datetime.strptime(date_str, "%Y-%m-%d")
+        return True
+    except ValueError:
+        return False
+    
+
+def is_valid_float(value):
+    try:
+        float(value)
+        return True
+    except (ValueError, TypeError):
+        return False    
+    
+def is_valid_length(value, min, max):
+    return value and value.strip() != "" and len(value) >= min and len(value) <= max 
+
+def is_valid_length_optional(value, min, max):
+    if not value or (value and value.strip() == ""):
+        return True
+    if len(value) >= min and len(value) <= max:
+        return True 
+    return False
+    
+def is_valid_length_required(value, min, max):
+    return value and not value.strip() == "" and len(value) >= min and len(value) <= max
 
 # Endpoint for logging CSP violations
 @app.route("/csp_report", methods=["POST"])

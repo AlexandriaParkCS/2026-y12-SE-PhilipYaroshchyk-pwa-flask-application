@@ -1,13 +1,14 @@
 import sqlite3
-from model.transaction import Transation
+from model.transaction import Transaction
 from model.goal import Goal
 from model.aggregation import Aggregation
 
 class SqlDb(object):
 
-    def __init__(self, db_path="db/app.db"):
+    def __init__(self, db_path="db/app.db", log: object = None):
         self.db_path = db_path
         self._create_tables()
+        self.log = log
 
     def _connect(self):
         return sqlite3.connect(self.db_path)
@@ -23,7 +24,8 @@ class SqlDb(object):
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT UNIQUE NOT NULL,
                 email TEXT UNIQUE NOT NULL,
-                password_hash TEXT NOT NULL)
+                password_hash TEXT NOT NULL,
+                password_salt TEXT NOT NULL)
             """)
 
             cursor.execute(""" 
@@ -31,7 +33,7 @@ class SqlDb(object):
                 id INTEGER PRIMARY KEY AUTOINCREMENT, 
                 user_id INTEGER NOT NULL,
                 transaction_type TEXT NOT NULL,
-                amount FLOAT NOT NULL,
+                amount INTEGER NOT NULL,
                 transaction_date TEXT NOT NULL,
                 description TEXT,
                 FOREIGN KEY (user_id) REFERENCES users(id)           
@@ -43,7 +45,7 @@ class SqlDb(object):
                 CREATE TABLE IF NOT EXISTS goals (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER NOT NULL,
-                amount FLOAT NOT NULL,        
+                amount INTEGER NOT NULL,        
                 goal_name TEXT NOT NULL,
                 start_date TEXT NOT NULL, 
                 end_date TEXT NOT NULL,
@@ -58,31 +60,31 @@ class SqlDb(object):
 
             conn.commit()
         except sqlite3.Error as e:
-            print(f"Error creating table: {e}")
+            self.log.info(f"Error creating table: {e}")
         finally:
             if cursor: 
                 cursor.close()
             if conn: 
                 conn.close()
 
-    def create_user(self, username, email, hash):
+    def create_user(self, username, email, hash, salt):
         conn = None
         try:
             conn = self._connect()
             cursor = conn.cursor()
             cursor.execute(
-                "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
-                (username, email, hash)
+                "INSERT INTO users (username, email, password_hash, password_salt) VALUES (?, ?, ?, ?)",
+                (username, email, hash, salt)
             )
             conn.commit()
             user_id = cursor.lastrowid
             return {"id": user_id, "username": username, "email": email}
         except sqlite3.IntegrityError:
-            print("Error: Username or email already exists.")
+            self.log.info("Error: Username or email already exists.")
             # return error
             raise
         except sqlite3.Error as e:
-            print(f"Database error during user creation: {e}")
+            self.log.info(f"Database error during user creation: {e}")
             raise
         finally:
             if cursor: 
@@ -96,17 +98,17 @@ class SqlDb(object):
             conn = self._connect()
             cursor = conn.cursor()
             cursor.execute(
-                "SELECT id, username, email, password_hash FROM users WHERE username = ?",
+                "SELECT id, username, email, password_hash, password_salt FROM users WHERE username = ?",
                 (username,)
             )
             row = cursor.fetchone()
             if row:
-                return {"id": row[0], "username": row[1], "email": row[2], "password_hash": row[3]}
+                return {"id": row[0], "username": row[1], "email": row[2], "password_hash": row[3], "password_salt": row[4]}
             else:
                 return None
             
         except sqlite3.Error as e:
-            print(f"Database error during user retrieval: {e}")
+            self.log.info(f"Database error during user retrieval: {e}")
             raise
         finally:
             if cursor: 
@@ -127,11 +129,11 @@ class SqlDb(object):
             if cursor.rowcount:
                 return self.get_user_by_username(username)
             else:
-                print("User not found.")
+                self.log.info("User not found.")
         except sqlite3.IntegrityError:
-            print("Error: Email already in use.")
+            self.log.info("Error: Email already in use.")
         except sqlite3.Error as e:
-            print(f"Database error during update: {e}")
+            self.log.info(f"Database error during update: {e}")
         finally:
             if cursor: 
                 cursor.close()
@@ -150,7 +152,7 @@ class SqlDb(object):
             conn.commit()
             return cursor.rowcount > 0
         except sqlite3.Error as e:
-            print(f"Database error during deletion: {e}")
+            self.log.info(f"Database error during deletion: {e}")
             return False
         finally:
             if cursor: 
@@ -174,11 +176,11 @@ class SqlDb(object):
             expense_id = cursor.lastrowid
             return {"id": expense_id}
         except sqlite3.IntegrityError:
-            print("Error: Failed to create transaction.")
+            self.log.info("Error: Failed to create transaction.")
             # return error
             raise
         except sqlite3.Error as e:
-            print(f"Database error during transaction creation: {e}")
+            self.log.info(f"Database error during transaction creation: {e}")
             raise
         finally:
             if cursor: 
@@ -199,11 +201,11 @@ class SqlDb(object):
             goal_id = cursor.lastrowid
             return {"id": goal_id}
         except sqlite3.IntegrityError:
-            print("Error: Failed to create goal.")
+            self.log.info("Error: Failed to create goal.")
             # return error
             raise
         except sqlite3.Error as e:
-            print(f"Database error during goal creation: {e}")
+            self.log.info(f"Database error during goal creation: {e}")
             raise
         finally:
             if cursor: 
@@ -229,13 +231,13 @@ class SqlDb(object):
 
             if rows:
                 for row in rows:
-                    transaction = Transation(id=row[0], user_id=row[1], transaction_type=row[2], amount=row[3], transaction_date=row[4], description=row[5])
+                    transaction = Transaction(id=row[0], user_id=row[1], transaction_type=row[2], amount=row[3], transaction_date=row[4], description=row[5])
                     list.append(transaction)
                 return list    
             else:
                 return list
         except Exception as e:
-            print(f"Database error during transactions retrieval: {e}")
+            self.log.info(f"Database error during transactions retrieval: {e}")
             raise
         finally:
             if cursor: 
@@ -264,7 +266,7 @@ class SqlDb(object):
             else:
                 return list
         except Exception as e:
-            print(f"Database error during goals retrieval: {e}")
+            self.log.info(f"Database error during goals retrieval: {e}")
             raise
         finally:
             if cursor: 
@@ -283,12 +285,12 @@ class SqlDb(object):
             rows = cursor.fetchall()
             list = []
             for r in rows:
-                transaction = Transation(id=r[0], user_id=r[1], transaction_type=r[2], amount=r[3], transaction_date=r[4], description=r[5]) 
+                transaction = Transaction(id=r[0], user_id=r[1], transaction_type=r[2], amount=r[3], transaction_date=r[4], description=r[5]) 
                 list.append(transaction)
             return list
         
         except Exception as e:
-            print(f"Database error during expenses retrieval: {e}")
+            self.log.info(f"Database error during expenses retrieval: {e}")
             raise
         finally:
             if cursor: 
@@ -313,7 +315,7 @@ class SqlDb(object):
             else:
                 return None
         except Exception as e:
-            print(f"Database error during goal retrieval: {e}")
+            self.log.info(f"Database error during goal retrieval: {e}")
             raise
         finally:
             if cursor: 
@@ -326,7 +328,7 @@ class SqlDb(object):
         conn = None
         cursor = None
 
-        print(f"fetching aggregated expenses for user_id={user_id} goal_id={goal_id}")
+        self.log.info(f"fetching aggregated expenses for user_id={user_id} goal_id={goal_id}")
         try:
             conn = self._connect()
             cursor = conn.cursor()
@@ -345,7 +347,7 @@ class SqlDb(object):
                 return list
 
         except Exception as e:
-            print(f"Database error during transactions retrieval for a goal: {e}")
+            self.log.info(f"Database error during transactions retrieval for a goal: {e}")
             raise 
         finally:
             if cursor: 
@@ -357,7 +359,7 @@ class SqlDb(object):
         conn = None
         cursor = None
 
-        print(f"fetching transactions for user_id={user_id} goal_id={goal_id}")
+        self.log.info(f"fetching transactions for user_id={user_id} goal_id={goal_id}")
 
         try:
             conn = self._connect()
@@ -366,18 +368,18 @@ class SqlDb(object):
                 "SELECT t.id, t.user_id, t.transaction_type, t.amount, t.transaction_date, t.description FROM transactions AS t INNER JOIN goals AS g ON t.user_id = g.user_id WHERE t.user_id = ? and g.id = ? AND t.transaction_date >= g.start_date AND t.transaction_date <= g.end_date ORDER BY t.transaction_date ASC", (user_id, goal_id)
             )
             rows = cursor.fetchall()
-            list = []
+            transaction_list = []
             if rows:
                 for row in rows:
-                    transaction = Transation(id=row[0], user_id=row[1], transaction_type=row[2], amount=row[3], transaction_date=row[4], description=row[5])
-                    list.append(transaction)
-                return list    
+                    transaction = Transaction(id=row[0], user_id=row[1], transaction_type=row[2], amount=row[3], transaction_date=row[4], description=row[5])
+                    transaction_list.append(transaction)
+                return transaction_list    
             else:
-                return list
+                return transaction_list
 
 
         except Exception as e:
-            print(f"Database error during transactions retrieval for a goal: {e}")
+            self.log.info(f"Database error during transactions retrieval for a goal: {e}")
             raise 
         finally:
             if cursor: 
@@ -397,20 +399,20 @@ class SqlDb(object):
                 (user_id, from_date, to_date)
             )
             rows = cursor.fetchall()
-            list = []
+            transaction_list = []
 
             if rows:
                 for row in rows:
-                    transaction = Transation(id=row[0], user_id=row[1], transaction_type=row[2], amount=row[3], transaction_date=row[4], description=row[5])
+                    transaction = Transaction(id=row[0], user_id=row[1], transaction_type=row[2], amount=row[3], transaction_date=row[4], description=row[5])
                     list.append(transaction)
-                return list    
+                return transaction_list    
             else:
-                return list
+                return transaction_list
 
 
             
         except Exception as e:
-            print(f"Database error during transactions retrieval for date range: {e}")
+            self.log.info(f"Database error during transactions retrieval for date range: {e}")
             raise 
         finally:
             if cursor: 
@@ -418,26 +420,3 @@ class SqlDb(object):
             if conn: 
                 conn.close()     
 
-
-             
-
-# Example usage
-if __name__ == "__main__":
-    db = SqlDb("db/sql.db")
-
-    # Create
-    user = db.create_user("emiltech", "emil@example.com")
-    print("Created:", user)
-
-    # Read
-    user = db.get_user_by_username("emiltech")
-    print("Retrieved:", user)
-
-    # Update
-    updated_user = db.update_user_email("emiltech", "emil_updated@example.com")
-    print("Updated:", updated_user)
-
-    # Delete
-    success = db.delete_user("emiltech")
-    print("Deleted:", success)
-    

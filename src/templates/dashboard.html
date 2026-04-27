@@ -22,11 +22,11 @@
                 <tbody>
                     {% for goal in goals %}
                     <tr>
-                        <td><a href="/summary/{{goal.get_id()}}"> summary </a></td>
-                        <td>{{ goal.get_amount() }}</td>
-                        <td>{{ goal.get_goal_name() }}</td>
-                        <td>{{ goal.get_start_date() }}</td>
-                        <td>{{ goal.get_end_date() }}</td>
+                        <td><a href="/summary/{{goal.id}}"> summary </a></td>
+                        <td>{{ goal.amount }}</td>
+                        <td>{{ goal.goal_name }}</td>
+                        <td>{{ goal.start_date }}</td>
+                        <td>{{ goal.end_date }}</td>
                     </tr>
                     {% endfor %}
             </table>
@@ -60,10 +60,10 @@
                     {% for tr in expenses %}
                     <tr>
                         
-                        <td>{{ tr.get_transaction_type() }}</td>
-                        <td>{{ tr.get_amount() }}</td>
-                        <td>{{ tr.get_transaction_date() }}</td>
-                        <td>{{ tr.get_description() }}</td>
+                        <td>{{ tr.transaction_type }}</td>
+                        <td>{{ tr.amount }}</td>
+                        <td>{{ tr.transaction_date }}</td>
+                        <td>{{ tr.description }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -100,10 +100,10 @@
                     {% for tr in income %}
                     <tr>
                         
-                        <td>{{ tr.get_transaction_type() }}</td>
-                        <td>{{ tr.get_amount() }}</td>
-                        <td>{{ tr.get_transaction_date() }}</td>
-                        <td>{{ tr.get_description() }}</td>
+                        <td>{{ tr.transaction_type }}</td>
+                        <td>{{ tr.amount }}</td>
+                        <td>{{ tr.transaction_date }}</td>
+                        <td>{{ tr.description }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

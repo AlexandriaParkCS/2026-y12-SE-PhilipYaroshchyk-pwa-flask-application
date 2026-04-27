@@ -25,10 +25,10 @@
                     {% for tr in expenses %}
                     <tr>
                         
-                        <td>{{ tr.get_transaction_type() }}</td>
-                        <td>{{ tr.get_amount() }}</td>
-                        <td>{{ tr.get_transaction_date() }}</td>
-                        <td>{{ tr.get_description() }}</td>
+                        <td>{{ tr.transaction_type }}</td>
+                        <td>{{ tr.amount }}</td>
+                        <td>{{ tr.transaction_date }}</td>
+                        <td>{{ tr.description }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

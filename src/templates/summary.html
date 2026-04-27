@@ -9,14 +9,15 @@
     <div class="row">
 
         <div>
-            <h3>Summary for goal: {{ goal_summary.get_goal().get_goal_name() }}</h3>
+            
+            <h3>Summary for goal: {{ goal_summary.goal.goal_name }}</h3>
         </div>
 
         <div>
-            Goal target: ${{ goal_summary.get_goal().get_amount()  }}
+            Goal target: ${{ goal_summary.goal.amount  }}
         </div>
         <div>
-            Current total: ${{ goal_summary.get_total() }}
+            Current total: ${{ goal_summary.total}}
         </div>
 
     </div>
